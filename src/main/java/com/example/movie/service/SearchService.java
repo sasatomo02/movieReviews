@@ -39,12 +39,12 @@ public class SearchService {
     }
 
     public List<SearchResultDto> searchGoogleNote(String title) {
-        return googleCustomSearchApiService.searchNote(title);
+        return googleCustomSearchApiService.searchNote(title,1);
     }
 
 
     public List<SearchResultDto> searchGoogleAmeba(String title) {
-        var debugLog = googleCustomSearchApiService.searchAmeba(title);
+        var debugLog = googleCustomSearchApiService.searchAmeba(title,1);
 
         return debugLog;
     }

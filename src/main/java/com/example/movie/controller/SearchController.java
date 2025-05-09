@@ -1,31 +1,38 @@
 package com.example.movie.controller;
 
+import com.example.movie.dto.SearchResultDto;
 import com.example.movie.form.SearchForm;
+import com.example.movie.service.GoogleCustomSearchApiService;
 import com.example.movie.service.SearchService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
 @AllArgsConstructor
+@SessionAttributes("SearchForm")
 public class SearchController {
     private final SearchService searchService;
+    private final GoogleCustomSearchApiService  googleCustomSearchApiService;
 
     @GetMapping("/main")
-    public String view(@ModelAttribute SearchForm searchForm) {
-        return "view";
+    public String view(@ModelAttribute SearchForm searchForm,Model model) {
+        // セッションから検索フォームのデータを取得
+        if (!model.containsAttribute("searchForm")) {
+            model.addAttribute("searchForm", new SearchForm());
+        }
+        return "view"; // index.htmlを表示
     }
 
     @PostMapping("/main")
     public String search(@ModelAttribute SearchForm searchForm, Model model) {
+        String keyword = searchForm.getTitle();
         var result = searchService.searchView(searchForm);
         model.addAttribute("results", result);
+        model.addAttribute("keyword", keyword);
         return "view";
     }
 
@@ -38,7 +45,7 @@ public class SearchController {
         /*
         デバｯｯｯｯｯｯｯｯｯアアアアアアアアアアアアアアグ！！！！！！！！！！
          */
-        boolean isDebug = false; //API制限のため、デバッグ=true、本番=false
+        boolean isDebug = true; //API制限のため、デバッグ=true、本番=false
 
         String movieVideo = null;
         List<?> searchNoteReviews = null;
@@ -57,4 +64,21 @@ public class SearchController {
         model.addAttribute("searchAmebaResults", searchAmebaReviews);
         return "detail";
     }
+
+    @GetMapping("/searchNote")
+    @ResponseBody
+    public List<SearchResultDto> searchNote(@RequestParam String keyword,
+                                            @RequestParam(defaultValue = "1") int page) {
+        int startIndex = (page - 1) * 10 + 1; // Google APIは1始まり
+        return googleCustomSearchApiService.searchNote(keyword, startIndex);
+    }
+
+    @GetMapping("/searchAmeba")
+    @ResponseBody
+    public List<SearchResultDto> searchAmeba(@RequestParam String keyword,
+                                             @RequestParam(defaultValue = "1") int page) {
+        int startIndex = (page - 1) * 10 + 1;
+        return googleCustomSearchApiService.searchAmeba(keyword, startIndex);
+    }
+
 }

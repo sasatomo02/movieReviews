@@ -20,7 +20,7 @@ public class GoogleCustomSearchApiService {
     private final DozerBeanMapper mapper;
     private final ApiConfig apiConfig;
 
-    public List<SearchResultDto> searchNote(String keyword) {
+    public List<SearchResultDto> searchNote(String keyword, int startIndex) {
         String apiKey = apiConfig.getApiKey();
         String cx = apiConfig.getNoteCx();
 
@@ -28,7 +28,8 @@ public class GoogleCustomSearchApiService {
         String url = "https://www.googleapis.com/customsearch/v1"
                 + "?key=" + apiKey
                 + "&cx=" + cx
-                + "&q=" + query;
+                + "&q=" + query
+                + "&start=" + startIndex;
 
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
         List<Map<String, String>> items = (List<Map<String, String>>) response.get("items");
@@ -42,7 +43,8 @@ public class GoogleCustomSearchApiService {
         return results;
     }
 
-    public List<SearchResultDto> searchAmeba(String keyword) {
+
+    public List<SearchResultDto> searchAmeba(String keyword, int startIndex) {
         String apiKey = apiConfig.getApiKey();
         String cx = apiConfig.getAmebaCx();
 
@@ -50,11 +52,11 @@ public class GoogleCustomSearchApiService {
         String url = "https://www.googleapis.com/customsearch/v1"
                 + "?key=" + apiKey
                 + "&cx=" + cx
-                + "&q=" + query;
+                + "&q=" + query
+                + "&start=" + startIndex;
 
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
         List<Map<String, String>> items = (List<Map<String, String>>) response.get("items");
-        System.out.println(response);
 
         List<SearchResultDto> results = new ArrayList<>();
         if (items != null) {
@@ -64,5 +66,6 @@ public class GoogleCustomSearchApiService {
         }
         return results;
     }
+
 
 }
