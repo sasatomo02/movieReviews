@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS（Popper含む） -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<h2>映画検索</h2>
+<form th:action="@{/main}" method="post" th:object="${searchForm}">
+    <div>
+        <label for="title" class="form-label">タイトル</label>
+        <input type="text" id="title" th:field="*{title}">
+        <button type="submit" class="btn btn-outline-secondary">検索</button>
+    </div>
+</form>
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4"> <!-- 4つに並べる -->
+        <div class="col" th:each="movie : ${results}">
+            <div class="card h-100">
+                <!-- 上：画像 -->
+                <a th:href="@{'/movie/' + ${movie.id}}">
+                <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.posterPath}"
+                     class="card-img-top"
+                     alt="ポスター画像"
+                     style="height: 400px; object-fit: cover; width: 100%;">
+                </a>
+                <!-- 下：本文 -->
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title" th:text="${movie.title}">タイトル</h5>
+                    <p class="card-text" th:text="'公開日: ' + ${movie.releaseDate}">公開日</p>
+                    <p class="card-text" th:text="'評価: ' + ${movie.voteAverage}">評価</p>
+                    <p class="card-text" th:text="${movie.overview}">あらすじ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
