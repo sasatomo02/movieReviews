@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: movie-reviews-app
+    env: java
+    runtime: java # ← こちらを追加
+    region: tokyo
+    buildCommand: ./gradlew build
+    startCommand: java -jar build/libs/*.jar
+    rootDirectory: movie
+    envVars:
+      - key: SPOTIFY_CLIENT_ID
+        value: ${SPOTIFY_CLIENT_ID}
+      - key: SPOTIFY_CLIENT_SECRET
+        value: ${SPOTIFY_CLIENT_SECRET}
+      - key: TMDB_API_KEY
+        value: ${TMDB_API_KEY}
+      - key: GOOGLE_API_KEY
+        value: ${GOOGLE_API_KEY}
+      - key: GOOGLE_API_NOTE_CX
+        value: ${GOOGLE_API_NOTE_CX}
+      - key: GOOGLE_API_AMEBA_CX
+        value: ${GOOGLE_API_AMEBA_CX}
+      - key: YOUTUBE_API_KEY
+        value: ${YOUTUBE_API_KEY}
+      - key: SPRING_APPLICATION_NAME
+        value: movie
+      - key: SPRING_AUTOCONFIGURE_EXCLUDE
+        value: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
