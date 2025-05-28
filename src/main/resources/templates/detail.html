@@ -7,6 +7,11 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .spoiler-content {
+            display: none; /* 初期状態では非表示 */
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-4">
@@ -40,7 +45,6 @@
         </div>
     </div>
 
-    <!-- タブ切り替え -->
     <ul class="nav nav-pills mt-4" id="myTab" role="tablist">
         <li class="nav-item">
             <a class="nav-link" id="ameba-tab" data-bs-toggle="pill" href="#webAmeba" role="tab">Ameba.jp</a>
@@ -48,29 +52,104 @@
         <li class="nav-item">
             <a class="nav-link" id="note-tab" data-bs-toggle="pill" href="#webNote" role="tab">Note.com</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link active" id="review-tab" data-bs-toggle="pill" href="#dbReviews" role="tab">レビュー</a>
+        </li>
     </ul>
 
     <div class="tab-content mt-3" id="myTabContent">
-        <!-- Ameba -->
         <div class="tab-pane fade" id="webAmeba" role="tabpanel" aria-labelledby="ameba-tab">
             <h5 class="mt-3">ameba.jpでの感想</h5>
             <ul id="amebaResults" class="list-group mt-3"></ul>
             <button id="loadMoreAmeba" class="btn btn-outline-success mt-2">次の10件</button>
         </div>
 
-        <!-- Note -->
         <div class="tab-pane fade" id="webNote" role="tabpanel" aria-labelledby="note-tab">
             <h5 class="mt-3">note.comでの感想</h5>
             <ul id="noteResults" class="list-group mt-3"></ul>
             <button id="loadMoreNote" class="btn btn-outline-primary mt-2">次の10件</button>
         </div>
+
+        <div class="tab-pane fade show active" id="dbReviews" role="tabpanel" aria-labelledby="review-tab">
+            <h5 class="mt-3">ユーザーレビュー</h5>
+            <div class="mb-2">
+                <a th:href="@{/movie/{id}(id=${movieId}, sort='newest')}" class="btn btn-sm btn-outline-primary">新しい順</a>
+                <a th:href="@{/movie/{id}(id=${movieId}, sort='oldest')}" class="btn btn-sm btn-outline-primary">古い順</a>
+            </div>
+            <button id="showReviewForm" class="btn btn-primary mb-3">レビューを投稿する</button>
+
+            <div id="reviewFormCard" class="card mb-3" style="display: none;">
+                <div class="card-body">
+                    <h5 class="card-title">レビュー投稿</h5>
+                    <form id="submitReviewForm" th:action="@{/reviews/{movieId}(movieId=${movieId})}" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">ユーザー名</label>
+                            <input type="text" class="form-control" id="username" name="username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="reviews" class="form-label">レビュー内容</label>
+                            <textarea class="form-control" id="reviews" name="reviews" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="isSpoiler" name="isSpoiler" value="true">
+                            <label class="form-check-label" for="isSpoiler">ネタバレあり</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">投稿</button>
+                        <button type="button" id="cancelReviewForm" class="btn btn-secondary">キャンセル</button>
+                    </form>
+                </div>
+            </div>
+
+            <ul id="userReviews" class="list-group mt-3">
+                <li th:each="review : ${userReviews}" class="list-group-item">
+                    <p><strong>ユーザー名:</strong> <span th:text="${review.username}"></span></p>
+                    <p th:if="${review.isSpoiler}">
+                        <a href="#" class="spoiler-toggle" th:data-review-id="${review.id}">ネタバレが含まれています。表示しますか？</a>
+                        <span class="spoiler-content" th:id="'review-content-' + ${review.id}" th:text="${review.reviews}"></span>
+                    </p>
+                    <p th:unless="${review.isSpoiler}" th:text="${review.reviews}"></p>
+                    <p><strong>投稿日時:</strong> <span th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
-<!-- キーワードをJSに渡すためにdata属性を使う -->
 <span id="movieTitle" th:text="${movie.title}" style="display: none;"></span>
 
-<script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        const showReviewFormButton = document.getElementById('showReviewForm');
+        const reviewFormCard = document.getElementById('reviewFormCard');
+        const cancelReviewFormButton = document.getElementById('cancelReviewForm');
+        const reviewTab = new bootstrap.Tab(document.getElementById('review-tab'));
+        reviewTab.show();
+        loadMore('note');
+        loadMore('ameba');
+
+        showReviewFormButton.addEventListener('click', () => {
+            reviewFormCard.style.display = 'block';
+        });
+
+        cancelReviewFormButton.addEventListener('click', () => {
+            reviewFormCard.style.display = 'none';
+        });
+
+        const spoilerToggles = document.querySelectorAll('.spoiler-toggle');
+
+        spoilerToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(event) {
+                event.preventDefault();
+                const reviewId = this.getAttribute('data-review-id');
+                const contentElement = document.getElementById('review-content-' + reviewId);
+                if (contentElement) {
+                    this.style.display = 'none'; // 「表示しますか？」リンクを非表示
+                    contentElement.style.display = 'block'; // レビュー内容を表示
+                }
+            });
+        });
+    });
+
     const keyword = document.getElementById('movieTitle').innerText;
     let notePage = 1;
     let amebaPage = 1;
@@ -97,12 +176,6 @@
 
     document.getElementById('loadMoreNote').addEventListener('click', () => loadMore('note'));
     document.getElementById('loadMoreAmeba').addEventListener('click', () => loadMore('ameba'));
-
-    document.addEventListener('DOMContentLoaded', () => {
-        new bootstrap.Tab(document.getElementById('ameba-tab')).show();
-        loadMore('note');
-        loadMore('ameba');
-    });
 </script>
 </body>
 </html>

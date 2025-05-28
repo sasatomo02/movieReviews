@@ -1,7 +1,10 @@
 package com.example.movie.controller;
 
+import com.example.movie.entity.ReviewsEntity;
+import com.example.movie.form.ReviewForm; // 追加
 import com.example.movie.dto.SearchResultDto;
 import com.example.movie.form.SearchForm;
+import com.example.movie.repository.ReviewsRepository;
 import com.example.movie.service.GoogleCustomSearchApiService;
 import com.example.movie.service.SearchService;
 import lombok.AllArgsConstructor;
@@ -16,10 +19,11 @@ import java.util.List;
 @SessionAttributes("SearchForm")
 public class SearchController {
     private final SearchService searchService;
-    private final GoogleCustomSearchApiService  googleCustomSearchApiService;
+    private final GoogleCustomSearchApiService googleCustomSearchApiService;
+    private final ReviewsRepository reviewsRepository; // final に変更
 
     @GetMapping("/main")
-    public String view(@ModelAttribute SearchForm searchForm,Model model) {
+    public String view(@ModelAttribute SearchForm searchForm, Model model) {
         // セッションから検索フォームのデータを取得
         if (!model.containsAttribute("searchForm")) {
             model.addAttribute("searchForm", new SearchForm());
@@ -37,11 +41,15 @@ public class SearchController {
     }
 
     @GetMapping("/movie/{id}")
-    public String detail(@PathVariable int id, Model model) {
+    public String detail(@PathVariable int id, @RequestParam(value = "sort", required = false) String sort, Model model) {
         var reviews = searchService.getReview(id);
-        var movieTitle = searchService.getInfoById(id).getTitle();
-        var year = searchService.getInfoById(id).getReleaseDate();
-        year = year.substring(0, 4);
+        var userReviews = searchService.getUserReviews(id, sort);
+        var movieInfo = searchService.getInfoById(id);
+        var movieTitle = movieInfo.getTitle();
+        String year = movieInfo.getReleaseDate();
+        if (year != null && year.length() >= 4) {
+            year = year.substring(0, 4);
+        }
         /*
         デバｯｯｯｯｯｯｯｯｯアアアアアアアアアアアアアアグ！！！！！！！！！！
          */
@@ -57,12 +65,33 @@ public class SearchController {
             movieVideo = searchService.youtubeTrailerUrl(id);
         }
 
-        model.addAttribute("youtube",movieVideo);
+        model.addAttribute("userReviews", userReviews);
+        model.addAttribute("movieId", id);
+        model.addAttribute("youtube", movieVideo);
         model.addAttribute("reviews", reviews);
-        model.addAttribute("movie", searchService.getInfoById(id));
+        model.addAttribute("movie", movieInfo);
         model.addAttribute("searchNoteResults", searchNoteReviews);
         model.addAttribute("searchAmebaResults", searchAmebaReviews);
         return "detail";
+    }
+
+    @PostMapping("/reviews/{movieId}")
+    public String submitReview(@PathVariable String movieId, @ModelAttribute ReviewForm reviewForm,
+                               @RequestParam(value = "isSpoiler", required = false) String spoiler) {
+        System.out.println("送信されたisSpoilerの値: " + spoiler);
+        boolean isSpoilerValue = "true".equals(spoiler);
+        reviewForm.setSpoiler(isSpoilerValue);
+        System.out.println("変換後のisSpoilerの値: " + reviewForm.isSpoiler());
+
+        ReviewsEntity newReview = new ReviewsEntity();
+        newReview.setMovieId(movieId);
+        newReview.setUsername(reviewForm.getUsername());
+        newReview.setReviews(reviewForm.getReviews());
+        newReview.setSpoiler(reviewForm.isSpoiler());
+
+        reviewsRepository.save(newReview);
+
+        return "redirect:/movie/" + movieId;
     }
 
     @GetMapping("/searchNote")
@@ -80,5 +109,4 @@ public class SearchController {
         int startIndex = (page - 1) * 10 + 1;
         return googleCustomSearchApiService.searchAmeba(keyword, startIndex);
     }
-
 }
