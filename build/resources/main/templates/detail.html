@@ -81,14 +81,16 @@
             <div id="reviewFormCard" class="card mb-3" style="display: none;">
                 <div class="card-body">
                     <h5 class="card-title">レビュー投稿</h5>
-                    <form id="submitReviewForm" th:action="@{/reviews/{movieId}(movieId=${movieId})}" method="post">
+                    <form id="submitReviewForm" th:action="@{/reviews/{movieId}(movieId=${movieId})}" method="post" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label for="username" class="form-label">ユーザー名</label>
-                            <input type="text" class="form-control" id="username" name="username">
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <div class="invalid-feedback">ユーザー名を入力してください。</div>
                         </div>
                         <div class="mb-3">
                             <label for="reviews" class="form-label">レビュー内容</label>
-                            <textarea class="form-control" id="reviews" name="reviews" rows="3"></textarea>
+                            <textarea class="form-control" id="reviews" name="reviews" rows="3" required></textarea>
+                            <div class="invalid-feedback">レビュー内容を入力してください。</div>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="isSpoiler" name="isSpoiler" value="true">
@@ -147,6 +149,18 @@
                     contentElement.style.display = 'block'; // レビュー内容を表示
                 }
             });
+        });
+
+        // Bootstrapのフォーム検証を有効にする
+        const forms = document.querySelectorAll('.needs-validation');
+        forms.forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
         });
     });
 

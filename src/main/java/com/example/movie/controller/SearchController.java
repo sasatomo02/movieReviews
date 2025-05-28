@@ -1,15 +1,17 @@
 package com.example.movie.controller;
 
 import com.example.movie.entity.ReviewsEntity;
-import com.example.movie.form.ReviewForm; // 追加
+import com.example.movie.form.ReviewForm;
 import com.example.movie.dto.SearchResultDto;
 import com.example.movie.form.SearchForm;
 import com.example.movie.repository.ReviewsRepository;
 import com.example.movie.service.GoogleCustomSearchApiService;
 import com.example.movie.service.SearchService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,15 +22,14 @@ import java.util.List;
 public class SearchController {
     private final SearchService searchService;
     private final GoogleCustomSearchApiService googleCustomSearchApiService;
-    private final ReviewsRepository reviewsRepository; // final に変更
+    private final ReviewsRepository reviewsRepository;
 
     @GetMapping("/main")
     public String view(@ModelAttribute SearchForm searchForm, Model model) {
-        // セッションから検索フォームのデータを取得
         if (!model.containsAttribute("searchForm")) {
             model.addAttribute("searchForm", new SearchForm());
         }
-        return "view"; // index.htmlを表示
+        return "view";
     }
 
     @PostMapping("/main")
@@ -50,9 +51,6 @@ public class SearchController {
         if (year != null && year.length() >= 4) {
             year = year.substring(0, 4);
         }
-        /*
-        デバｯｯｯｯｯｯｯｯｯアアアアアアアアアアアアアアグ！！！！！！！！！！
-         */
         boolean isDebug = true; //API制限のため、デバッグ=true、本番=false
 
         String movieVideo = null;
@@ -65,6 +63,8 @@ public class SearchController {
             movieVideo = searchService.youtubeTrailerUrl(id);
         }
 
+        // ★ ここで ReviewForm のインスタンスを Model に追加します ★
+        model.addAttribute("reviewForm", new ReviewForm());
         model.addAttribute("userReviews", userReviews);
         model.addAttribute("movieId", id);
         model.addAttribute("youtube", movieVideo);
@@ -76,16 +76,33 @@ public class SearchController {
     }
 
     @PostMapping("/reviews/{movieId}")
-    public String submitReview(@PathVariable String movieId, @ModelAttribute ReviewForm reviewForm,
-                               @RequestParam(value = "isSpoiler", required = false) String spoiler) {
-        System.out.println("送信されたisSpoilerの値: " + spoiler);
+    public String submitReview(@PathVariable String movieId, @Valid @ModelAttribute ReviewForm reviewForm, BindingResult result,
+                               @RequestParam(value = "isSpoiler", required = false) String spoiler, Model model) {
         boolean isSpoilerValue = "true".equals(spoiler);
         reviewForm.setSpoiler(isSpoilerValue);
-        System.out.println("変換後のisSpoilerの値: " + reviewForm.isSpoiler());
+
+        if (result.hasErrors()) {
+            // ★ エラー発生時、入力された reviewForm を Model に追加 ★
+            model.addAttribute("reviewForm", reviewForm);
+
+            // ★ 既存の詳細情報を Model から取得 (もしあれば) ★
+            if (!model.containsAttribute("userReviews")) {
+                var userReviews = searchService.getUserReviews(Integer.parseInt(movieId), null);
+                model.addAttribute("userReviews", userReviews);
+            }
+            if (!model.containsAttribute("movie")) {
+                var movieInfo = searchService.getInfoById(Integer.parseInt(movieId));
+                model.addAttribute("movie", movieInfo);
+            }
+            model.addAttribute("movieId", movieId);
+
+            return "detail"; // エラーがある場合は詳細ページに戻る
+        }
 
         ReviewsEntity newReview = new ReviewsEntity();
         newReview.setMovieId(movieId);
-        newReview.setUsername(reviewForm.getUsername());
+        // ユーザー名がない場合は「ななしの映画好き」を設定
+        newReview.setUsername(reviewForm.getUsername() == null || reviewForm.getUsername().isEmpty() ? "ななしの映画好き" : reviewForm.getUsername());
         newReview.setReviews(reviewForm.getReviews());
         newReview.setSpoiler(reviewForm.isSpoiler());
 
@@ -93,7 +110,6 @@ public class SearchController {
 
         return "redirect:/movie/" + movieId;
     }
-
     @GetMapping("/searchNote")
     @ResponseBody
     public List<SearchResultDto> searchNote(@RequestParam String keyword,
