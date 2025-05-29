@@ -3,7 +3,7 @@ package com.example.movie.service;
 import com.example.movie.dto.*;
 import com.example.movie.entity.ReviewsEntity;
 import com.example.movie.form.SearchForm;
-import com.example.movie.ReviewsRepository;
+import com.example.movie.repository.ReviewsRepository;
 import com.github.dozermapper.core.DozerBeanMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;

@@ -4,7 +4,7 @@ import com.example.movie.entity.ReviewsEntity;
 import com.example.movie.form.ReviewForm;
 import com.example.movie.dto.SearchResultDto;
 import com.example.movie.form.SearchForm;
-import com.example.movie.ReviewsRepository;
+import com.example.movie.repository.ReviewsRepository;
 import com.example.movie.service.GoogleCustomSearchApiService;
 import com.example.movie.service.SearchService;
 import jakarta.validation.Valid;
