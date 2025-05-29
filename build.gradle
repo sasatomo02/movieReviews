@@ -47,6 +47,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'com.github.dozermapper:dozer-core:7.0.0'
 
+
+	implementation 'org.apache.tomcat.embed:tomcat-embed-core' // これに含まれています
 	implementation 'org.json:json:20231013'
 	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
