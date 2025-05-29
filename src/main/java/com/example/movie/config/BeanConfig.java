@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.web.client.RestTemplate;
-
+//aaa
 import javax.sql.DataSource;
 
 @Configuration
