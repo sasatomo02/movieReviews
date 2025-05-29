@@ -15,11 +15,11 @@ RUN chmod +x ./gradlew
 # 依存関係をダウンロードし、キャッシュを構築
 RUN ./gradlew dependencies --write-locks || true
 
-# .gradle ディレクトリをコピー (依存関係ダウンロード後)
-COPY .gradle .gradle
-
 # アプリケーションのソースコードをコピー
 COPY . .
+
+# .gradle ディレクトリをコピー (JARビルド直前)
+COPY .gradle .gradle
 
 # Spring BootアプリケーションのJARファイルをビルド
 RUN ./gradlew bootJar
