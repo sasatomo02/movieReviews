@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.web.client.RestTemplate;
 import javax.sql.DataSource;
-//a
+//aa
 @Configuration
 @RequiredArgsConstructor
 public class BeanConfig {
