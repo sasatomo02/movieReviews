@@ -1,6 +1,5 @@
-package com.example.movie.repository;
+package com.example.movie;
 
-import com.example.movie.dto.ReviewsDto;
 import com.example.movie.entity.ReviewsEntity;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
