@@ -28,25 +28,21 @@ ext {
 }
 
 dependencies {
-	//implementation 'com.google.cloud.sql:mysql-socket-factory:1.15.0'
-	implementation 'com.google.cloud.sql:mysql-socket-factory:1.4.1'
+	implementation 'com.google.cloud.sql:mysql-socket-factory:1.15.0'
+	implementation 'com.mysql:mysql-connector-j:8.0.33' // 明示的に implementation に指定
+
 	implementation 'org.postgresql:postgresql'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	//implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
 	implementation 'org.springframework.cloud:spring-cloud-starter'
 	compileOnly 'org.projectlombok:lombok'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	//testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'com.github.dozermapper:dozer-core:7.0.0'
-
-	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
-	runtimeOnly 'com.mysql:mysql-connector-j:9.1.0'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
 
