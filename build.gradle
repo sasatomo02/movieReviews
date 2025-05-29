@@ -29,8 +29,8 @@ ext {
 
 dependencies {
 	//implementation 'com.google.cloud.sql:mysql-socket-factory:1.15.0'
-//	implementation 'com.google.cloud.sql:mysql-socket-factory:1.4.1'
-	implementation 'com.google.cloud.sql:mysql-socket-factory:1.15.0' // バージョンは最新のものを指定してください
+	implementation 'com.google.cloud.sql:mysql-socket-factory:1.4.1'
+	//implementation 'com.google.cloud.sql:mysql-socket-factory:1.15.0' // バージョンは最新のものを指定してください
 
 	implementation 'org.postgresql:postgresql'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
