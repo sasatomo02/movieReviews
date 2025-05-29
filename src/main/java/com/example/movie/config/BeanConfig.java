@@ -7,16 +7,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dozermapper.core.DozerBeanMapper;
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.web.client.RestTemplate;
+
+import javax.sql.DataSource;
 
 @Configuration
 @RequiredArgsConstructor
 public class BeanConfig {
     private final EntityManager entityManager;
+
 
     @Bean
     public RestTemplate restTemplate() {
@@ -33,12 +40,12 @@ public class BeanConfig {
         return (DozerBeanMapper) DozerBeanMapperBuilder.buildDefault();
     }
 
-    @Bean("reviewsRepository") // Beanの名前を明示的に "reviewsRepository" にする
-    public ReviewsRepository reviewsRepository() {
+/*    @Bean("reviewsRepository")
+    public ReviewsRepository reviewsRepository(EntityManager entityManager) {
         JpaRepositoryFactoryBean<ReviewsRepository, ReviewsEntity, Long> factory =
                 new JpaRepositoryFactoryBean<>(ReviewsRepository.class);
         factory.setEntityManager(entityManager);
         return factory.getObject();
-    }
+    }*/
 }
 
