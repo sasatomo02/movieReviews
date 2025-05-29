@@ -10,13 +10,16 @@ COPY .gradle .gradle
 COPY build.gradle .
 COPY settings.gradle .
 
+# gradlewに実行権限を付与 (dependenciesタスク実行前に必要)
+RUN chmod +x ./gradlew
+
 # 依存関係をダウンロードし、キャッシュを構築
 RUN ./gradlew dependencies --write-locks || true
 
 # アプリケーションのソースコードをコピー
 COPY . .
 
-# gradlewに実行権限を付与
+# gradlewに実行権限を付与 (bootJarタスク実行前に念のため)
 RUN chmod +x ./gradlew
 
 # Spring BootアプリケーションのJARファイルをビルド
