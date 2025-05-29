@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ReviewsRepository extends JpaRepository<ReviewsEntity, Long>, org.springframework.data.repository.Repository<ReviewsDto, Long> {
+public interface ReviewsRepository extends JpaRepository<ReviewsEntity, Long> {
     List<ReviewsEntity> findByMovieId(String movieId);
     List<ReviewsEntity> findByMovieId(String movieId, Sort sort); // ソート機能を追加
 
