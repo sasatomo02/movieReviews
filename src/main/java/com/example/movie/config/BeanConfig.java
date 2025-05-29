@@ -31,10 +31,5 @@ public class BeanConfig {
         return (DozerBeanMapper) DozerBeanMapperBuilder.buildDefault();
     }
 
-    @Bean
-    public ReviewsRepository repository(){
-         return new JpaRepositoryFactoryBean<ReviewsRepository, ReviewsEntity, Long>(ReviewsRepository.class).getObject();
-    }
-
 }
 
